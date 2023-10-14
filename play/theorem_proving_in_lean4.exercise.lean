@@ -256,3 +256,11 @@ example : ¬(p ↔ ¬p) :=
   λ h : p ↔ ¬p  =>
     let hnp : ¬p := (λ hp : p => absurd hp (h.mp hp))
     absurd (h.mpr hnp) hnp
+
+-- from dne to em
+example: (p ∨ ¬p) :=
+  dne
+    λ (h: ¬(p ∨ ¬p)) =>
+      have hnp : ¬p := (λ (hp: p) =>  absurd (show (p ∨ ¬p) from Or.inl hp) h)
+      have hn : (p ∨ ¬p) := Or.inr hnp
+      absurd hn h
