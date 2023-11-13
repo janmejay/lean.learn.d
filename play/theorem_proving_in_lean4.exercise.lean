@@ -592,7 +592,7 @@ example (n : Nat) : Nat := ‹Nat›
 
 end proof_language_intro
 
-section chapter3_exercises
+section chapter4_exercises
 
 variable (α : Type) (p q : α → Prop)
 
@@ -649,4 +649,63 @@ example (h : ∀ x : men, shaves barber x ↔ ¬ shaves x x) : False :=
   have k : (¬shaves barber barber) := λ hsbb => show False from (hb.mp hsbb) hsbb
   show False from k (hb.mpr k)
 
-end chapter3_exercises
+-- 4
+
+def even(n : Nat) : Prop := ∃ x : Nat, n = 2 * x
+
+def prime(n : Nat) : Prop := ¬ ∃ x k : Nat, x > 1 ∧ x * k = n
+
+def infinitely_many_primes : Prop := ∃ n m : Nat, n > m ∧ prime m ∧ prime n
+
+def Fermat_prime(n : Nat) : Prop := ∃ x, n = 2^(2^x) + 1 ∧ prime n
+
+def infinitely_many_Fermat_primes : Prop :=
+  ∃ n m : Nat,
+    Fermat_prime n ∧
+    Fermat_prime m ∧
+    n > m
+
+def goldbach_conjecture : Prop :=
+  ∀ s : Nat, s ≥ 4 → ∃ m n : Nat, prime m ∧ prime n ∧ m + n = s
+
+def Goldbach's_week_conjecture : Prop :=
+  ∀ s : Nat, s > 5 → ∃ m n p : Nat, prime m ∧ prime n ∧ prime p ∧ m + n + p = s
+
+def Fermat's_last_theorem : Prop :=
+  ¬ ∃ n x y z : Nat,
+    n > 2 ∧
+    (x ≠ 0 ∨ y ≠ 0 ∨ z ≠ 0) ∧
+    x ^ n + y ^ n = z ^ n
+
+-- 5
+
+example : (∃ x : α, r) → r :=
+  λ h =>
+    let ⟨_, hr⟩ := h
+    hr
+
+example (a : α) : r → (∃ x : α, r) := λ hr => ⟨a, hr⟩
+
+example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r :=
+  ⟨
+    λ ⟨w, h⟩ => ⟨⟨w, h.left⟩, h.right⟩,
+    λ ⟨⟨w, hpx⟩, hr⟩ => ⟨w, ⟨hpx, hr⟩⟩
+  ⟩
+
+example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) :=
+  ⟨
+    λ ⟨w, h⟩ => h.elim (λ hpx => Or.inl ⟨w, hpx⟩) (λ hqx => Or.inr ⟨w, hqx⟩),
+    λ h => h.elim (λ ⟨w, hpx⟩ => ⟨w, Or.inl hpx⟩) (λ ⟨w, hqx⟩ => ⟨w, Or.inr hqx⟩)
+  ⟩
+
+example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) :=
+  ⟨
+    λ h =>
+      λ (hnt: ∃ x, ¬ p x) =>
+        let ⟨w, hnpx⟩ := hnt
+        show False from hnpx (h w),
+    λ h => sorry
+  ⟩
+
+
+end chapter4_exercises
