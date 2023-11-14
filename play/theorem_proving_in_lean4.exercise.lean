@@ -704,8 +704,87 @@ example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) :=
       λ (hnt: ∃ x, ¬ p x) =>
         let ⟨w, hnpx⟩ := hnt
         show False from hnpx (h w),
-    λ h => sorry
+    λ hr : ¬ ∃ x, ¬ p x =>
+      λ (x : α) =>
+        have h_nn : ¬¬ p x :=
+          λ (hp : ¬ p x) =>
+            have h_e_npx : ∃ x, ¬ p x := ⟨x, hp⟩
+            show False from  hr h_e_npx
+        dne h_nn
   ⟩
 
+example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) :=
+  ⟨
+    λ ⟨w, h⟩ =>
+      byContradiction
+        λ hnr : ¬¬(∀ x, ¬ p x) =>
+          show False from ((dne hnr) w) h,
+    λ h : ¬ (∀ x, ¬ p x) =>
+      byContradiction
+        λ hnp : ¬ (∃ x, p x) =>
+          have h_never_px : ∀ x, ¬ p x :=
+            λ x : α =>
+              λ hp : p x =>
+                show False from hnp ⟨x, hp⟩
+        show False from h h_never_px
+  ⟩
+
+example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) :=
+  ⟨
+    λ h : ¬ ∃ x, p x =>
+      λ x : α =>
+        λ hpx : p x =>
+          show False from h ⟨x, hpx⟩,
+    λ h : ∀ x, ¬ p x =>
+      byContradiction
+        λ hlnn : ¬¬ ∃ x, p x =>
+          have ⟨w, hp⟩ := dne hlnn
+          show False from (h w) hp
+  ⟩
+
+example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) :=
+  ⟨
+    λ h : ¬ ∀ x, p x =>
+      byContradiction
+        λ hn : ¬ ∃ x, ¬ p x =>
+          have h_all_px : ∀ x, p x :=
+            λ x : α =>
+              have hnnp :=
+                λ hnp : ¬ p x =>
+                  show False from hn ⟨x, hnp⟩
+              (dne hnnp)
+          show False from h h_all_px,
+    λ ⟨w, hnp⟩ =>
+      byContradiction
+        λ hn : ¬ ¬ ∀ x, p x =>
+          show False from hnp ((dne hn) w)
+  ⟩
+
+example : (∀ x, p x → r) ↔ (∃ x, p x) → r :=
+  ⟨
+    λ h =>
+      λ ⟨w, hp⟩ =>
+        ((h w) hp),
+    λ h =>
+      λ x : α =>
+        λ hp : p x =>
+          have hep : ∃ x, p x := ⟨x, hp⟩
+          (h hep)
+  ⟩
+
+example (a : α) : (∃ x, p x → r) ↔ (∀ x, p x) → r :=
+  ⟨
+    λ h : ∃ x, p x → r =>
+      let ⟨w, hpr⟩ := h
+      sorry,
+    λ h : (∀ x, p x) → r =>
+      (em (∀ x, p x)).elim
+        (λ hp : ∀ x, p x =>
+          have hr : r := h hp
+          have hpr : p a → r := (λ k : p a => hr)
+          show (∃ x, p x → r) from ⟨a, hpr⟩)
+        (λ hnp : ¬ ∀ x, p x =>
+          sorry)
+  ⟩
 
 end chapter4_exercises
