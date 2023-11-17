@@ -775,16 +775,27 @@ example : (∀ x, p x → r) ↔ (∃ x, p x) → r :=
 example (a : α) : (∃ x, p x → r) ↔ (∀ x, p x) → r :=
   ⟨
     λ h : ∃ x, p x → r =>
-      let ⟨w, hpr⟩ := h
-      sorry,
+      λ hth : ∀ x, p x =>
+        let ⟨w, hpr⟩ := h
+        let hpw : p w := (hth w)
+        (hpr hpw),
     λ h : (∀ x, p x) → r =>
       (em (∀ x, p x)).elim
         (λ hp : ∀ x, p x =>
           have hr : r := h hp
-          have hpr : p a → r := (λ k : p a => hr)
+          have hpr : p a → r := (λ _ : p a => hr)
           show (∃ x, p x → r) from ⟨a, hpr⟩)
-        (λ hnp : ¬ ∀ x, p x =>
-          sorry)
+        (λ hnap : ¬ ∀ x, p x =>
+          byContradiction
+            λ hnl : ¬ ∃ x, p x → r =>
+              have hap : ∀ x, p x :=
+                fun x =>
+                  byContradiction
+                    λ hnpx : ¬ p x =>
+                      have hl : ∃ x, p x → r :=
+                        ⟨x, λ hpx : p x => absurd hpx hnpx⟩
+                      show False from hnl hl
+              show False from hnap hap)
   ⟩
 
 end chapter4_exercises
