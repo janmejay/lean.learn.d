@@ -789,13 +789,31 @@ example (a : α) : (∃ x, p x → r) ↔ (∀ x, p x) → r :=
           byContradiction
             λ hnl : ¬ ∃ x, p x → r =>
               have hap : ∀ x, p x :=
-                fun x =>
+                λ x : α =>
                   byContradiction
                     λ hnpx : ¬ p x =>
                       have hl : ∃ x, p x → r :=
                         ⟨x, λ hpx : p x => absurd hpx hnpx⟩
                       show False from hnl hl
               show False from hnap hap)
+  ⟩
+
+example (a : α) : (∃ x, r → p x) ↔ (r → ∃ x, p x) :=
+  ⟨
+    λ ⟨w, hrpw⟩  =>
+      λ hr : r =>
+        ⟨w, (hrpw hr)⟩,
+    λ h : r → (∃ x, p x) =>
+      (em r).elim
+        (λ hr : r =>
+          have ⟨w, hpw⟩ := (h hr)
+          ⟨w, fun _ : r => hpw⟩)
+        (λ hnr : ¬ r =>
+          byContradiction
+            λ hnl : ¬ ∃ x, r → p x =>
+              have hl : ∃ x, r → p x :=
+                ⟨a, fun hr : r => absurd hr hnr⟩
+              show False from hnl hl)
   ⟩
 
 end chapter4_exercises
