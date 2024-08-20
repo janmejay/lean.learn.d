@@ -1,5 +1,6 @@
 -- Propositions and Proofs (Ch. 3)
 
+section chapter_3
 variable (p q r : Prop)
 
 -- fool around
@@ -265,6 +266,7 @@ example: (p ∨ ¬p) :=
       have hn : (p ∨ ¬p) := Or.inr hnp
       absurd hn h
 
+end chapter_3
 ------------------------------
 -- Chapter 4
 ------------------------------
@@ -817,3 +819,157 @@ example (a : α) : (∃ x, r → p x) ↔ (r → ∃ x, p x) :=
   ⟩
 
 end chapter4_exercises
+
+section chapter5
+theorem test (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p := by
+  apply And.intro
+  exact hp
+  apply And.intro
+  exact hq
+  exact hp
+
+#check test
+
+example (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p := test p q hp hq
+
+theorem test1 (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p := by
+  apply And.intro hp
+  apply And.intro hq hp
+
+theorem test2 (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p := by
+  apply And.intro hp; exact And.intro hq hp
+
+theorem test3 (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p := by
+  apply And.intro
+  case right =>
+    apply And.intro
+    case left => exact hq
+    case right => exact hp
+  case left => exact hp
+
+example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
+  apply Iff.intro
+  . intro h
+    apply Or.elim (And.right h)
+    · intro hq
+      apply Or.inl
+      apply And.intro
+      · exact h.left
+      · exact hq
+    · intro hr
+      apply Or.inr
+      apply And.intro
+      · exact h.left
+      · exact hr
+  · intro h
+    apply h.elim
+    · intro hpq
+      apply And.intro
+      ·  exact hpq.left
+      ·  exact Or.inl hpq.right
+    · intro h
+      · apply And.intro
+        exact h.left
+        apply Or.inr
+        exact h.right
+
+example (α : Type) : α → α := by
+  intro a
+  exact a
+
+example (α : Type) : ∀ x : α, x = x := by
+  intro x
+  exact Eq.refl x
+
+example : ∀ a b c : Nat, a = b → a = c → c = b := by
+  intro a b c h₁ h₂
+  exact Eq.trans (Eq.symm h₂) h₁
+
+example (α : Type) (p q : α → Prop) : (∃ x, p x ∧ q x) → ∃ x, q x ∧ p x := by
+  intro ⟨w, hpx, hqx⟩
+  exact ⟨w, hqx, hpx⟩
+
+example (α : Type) (p q : α -> Prop) : (∃ x, p x ∨ q x) → ∃ x, q x ∨ p x := by
+  intro
+  | ⟨w, Or.inl h⟩ => exact ⟨w, Or.inr h⟩
+  | ⟨w, Or.inr h⟩ => exact ⟨w, Or.inl h⟩
+
+example (x y z w : Nat) (h₁ : x = y) (h₂ : y = z) (h₃ : z = w) : x = w := by
+  apply Eq.trans h₁
+  apply Eq.trans h₂
+  assumption
+
+example (x y z w : Nat) (h₁ : x = y) (h₂ : y = z) (h₃ : z = w) : x = w := by
+  apply Eq.trans
+  assumption
+  apply Eq.trans
+  assumption
+  assumption
+
+example : ∀ a b c : Nat, a = b → a = c → c = b := by
+  intros
+  apply Eq.trans
+  apply Eq.symm
+  assumption
+  assumption
+
+example : ∀ a b c : Nat, a = b → a = c → c = b := by unhygienic
+  intros
+  apply Eq.trans
+  apply Eq.symm
+  exact a_2
+  exact a_1
+
+example : ∀ a b c d : Nat, a = b → a = d → a = c → c = b := by
+  intros
+  rename_i h1 _ h2
+  apply Eq.trans
+  apply Eq.symm
+  exact h2
+  exact h1
+
+example (y : Nat) : (fun x : Nat => 0) y = 0 :=
+  by rfl
+
+example : ∀ a b c : Nat, a = b → a = c → c = b := by
+  intros
+  apply Eq.trans
+  apply Eq.symm
+  repeat assumption
+
+example (x : Nat) : x = x := by
+  revert x; intro y; rfl
+
+example (x y : Nat) (h : x = y) : y = x := by
+  revert h
+  intros
+  apply Eq.symm
+  assumption
+
+example (x y : Nat) (h : x = y) : y = x := by
+  revert x
+  intros
+  apply Eq.symm
+  assumption
+
+example (x y : Nat) (h : x = y) : y = x := by
+  revert x y
+  intros
+  apply Eq.symm
+  assumption
+
+example : 3 = 3 := by
+  generalize 3 = x
+  revert x
+  intro y
+  rfl
+
+example : 2 + 3 = 5 := by
+  generalize 3 = x
+  admit
+
+example : 2 + 3 = 5 := by
+  generalize h : 3 = x
+  rw [← h]
+
+end chapter5
